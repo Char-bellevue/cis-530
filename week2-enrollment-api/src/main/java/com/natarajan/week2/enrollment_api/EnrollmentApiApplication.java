@@ -1,3 +1,6 @@
+/*
+ Natarajan, C. (2026). CIS530-T301 Server-Side Development (2271-1). Bellevue University.
+*/
 package com.natarajan.week2.enrollment_api;
 
 import org.slf4j.Logger;
@@ -8,12 +11,17 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class EnrollmentApiApplication {
 
-    private static final Logger logger = LoggerFactory.getLogger(EnrollmentApiApplication.class);
+    private static final Logger gLogger = LoggerFactory.getLogger(EnrollmentApiApplication.class);
 
+    /**
+     * Starts the Student Enrollment REST API application.
+     * @param args String[] command-line arguments supplied when the application starts.
+     * @return No value; the method starts the application process.
+     */
     public static void main(String[] args) {
-        ApiInfoBean apiInfoBean = new ApiInfoBean("Student Enrollment API", "1.0");
-        logger.info("ApiInfoBean: {}", apiInfoBean);
-        logger.info("ApiInfoBean hashCode: {}", apiInfoBean.hashCode());
+        ApiInfoBean lApiInfoBean = new ApiInfoBean("Student Enrollment API", "1.0");
+        gLogger.info("ApiInfoBean: {}", lApiInfoBean);
+        gLogger.info("ApiInfoBean hashCode: {}", lApiInfoBean.hashCode());
         SpringApplication.run(EnrollmentApiApplication.class, args);
-    }
-}
+    } // end main
+} // end EnrollmentApiApplication

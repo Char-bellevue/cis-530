@@ -38,10 +38,14 @@ class EnrollmentApiApplicationTests {
      */
     @Test
     void shouldReturnStudentsList() {
-        List<Student> lStudents = gStudentController.getStudents();
+        ResponseEntity<?> lResponse = gStudentController.getStudents();
+        List<?> lStudents = (List<?>) lResponse.getBody();
 
+        assertNotNull(lStudents);
         assertFalse(lStudents.isEmpty());
-        assertEquals("S001", lStudents.get(0).getStudentId());
+
+        Student lFirstStudent = (Student) lStudents.get(0);
+        assertEquals(Long.valueOf(1L), lFirstStudent.getId());
     } // end shouldReturnStudentsList
 
     /**
@@ -51,14 +55,18 @@ class EnrollmentApiApplicationTests {
     @Test
     void shouldCreateStudent() {
         Student lStudent = new Student();
-        lStudent.setStudentId("S100");
         lStudent.setFirstName("Alice");
         lStudent.setLastName("Johnson");
         lStudent.setEmail("alice@example.com");
+        lStudent.setCourseCode("CIS530");
+        lStudent.setSemester("Fall 2026");
 
-        ResponseEntity<Student> lResponse = gStudentController.createStudent(lStudent);
+        ResponseEntity<?> lResponse = gStudentController.createStudent(lStudent);
+        Student lCreatedStudent = (Student) lResponse.getBody();
 
         assertEquals(HttpStatus.CREATED, lResponse.getStatusCode());
-        assertEquals("S100", lResponse.getBody().getStudentId());
+        assertNotNull(lCreatedStudent);
+        assertEquals("Alice", lCreatedStudent.getFirstName());
+        assertNotNull(lCreatedStudent.getId());
     } // end shouldCreateStudent
 } // end EnrollmentApiApplicationTests

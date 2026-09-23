@@ -4,118 +4,82 @@
 package com.natarajan.week2.enrollment_api.controller;
 
 import com.natarajan.week2.enrollment_api.model.Student;
+import com.natarajan.week2.enrollment_api.service.StudentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/students")
 public class StudentController {
 
-    private final List<Student> gStudents = new ArrayList<>();
+    private final StudentService gStudentService;
 
     /**
-     * Creates the controller with two sample students.
-     * @return No value; the constructor initializes the in-memory student list.
+     * Creates the controller with its required service dependency.
+     * @param studentService StudentService used for business logic.
+     * @return No value; the constructor stores the service reference.
      */
-    public StudentController() {
-        gStudents.add(new Student("S001", "John", "Doe", "john.doe@example.com"));
-        gStudents.add(new Student("S002", "Jane", "Smith", "jane.smith@example.com"));
+    public StudentController(StudentService studentService) {
+        this.gStudentService = studentService;
     } // end StudentController
 
     /**
      * Returns all students currently stored by the API.
-     * @return List<Student> containing all students.
+     * @return ResponseEntity<?> containing the JSON list of all students.
      */
-    @GetMapping("/students")
-    public List<Student> getStudents() {
-        return gStudents;
+    @GetMapping
+    public ResponseEntity<?> getStudents() {
+        return ResponseEntity.ok(gStudentService.getAllStudents());
     } // end getStudents
 
     /**
      * Finds one student by identifier.
-     * @param id String student identifier to search for.
-     * @return ResponseEntity<?> containing the student or a JSON not-found response.
+     * @param id Long student identifier to search for.
+     * @return ResponseEntity<?> containing the student, or a 404 handled by GlobalExceptionHandler.
      */
-    @GetMapping("/students/{id}")
-    public ResponseEntity<?> getStudentById(@PathVariable String id) {
-        for (Student lStudent : gStudents) {
-            if (lStudent.getStudentId().equalsIgnoreCase(id)) {
-                return ResponseEntity.ok(lStudent);
-            }
-        }
-
-        return createNotFoundResponse(id);
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getStudentById(@PathVariable Long id) {
+        return ResponseEntity.ok(gStudentService.getStudentById(id));
     } // end getStudentById
 
     /**
-     * Adds a new student to the in-memory student list.
+     * Adds a new student.
      * @param student Student object received in the request body.
-     * @return ResponseEntity<Student> containing the created student and HTTP 201 status.
+     * @return ResponseEntity<?> containing the created student and HTTP 201 status.
      */
-    @PostMapping("/students")
-    public ResponseEntity<Student> createStudent(@RequestBody Student student) {
-        gStudents.add(student);
-        return ResponseEntity.status(HttpStatus.CREATED).body(student);
+    @PostMapping
+    public ResponseEntity<?> createStudent(@RequestBody Student student) {
+        Student lCreatedStudent = gStudentService.createStudent(student);
+        return ResponseEntity.status(HttpStatus.CREATED).body(lCreatedStudent);
     } // end createStudent
 
     /**
-     * Updates an existing student's non-identifier fields.
-     * @param id String student identifier to update.
-     * @param updatedStudent Student object containing replacement values.
-     * @return ResponseEntity<Object> containing the updated student or a JSON not-found response.
+     * Updates an existing student's data.
+     * @param id Long student identifier to update.
+     * @param student Student object containing replacement values.
+     * @return ResponseEntity<?> containing the updated student, or a 404 handled by GlobalExceptionHandler.
      */
-    @PutMapping("/students/{id}")
-    public ResponseEntity<Object> updateStudent(@PathVariable String id, @RequestBody Student updatedStudent) {
-        for (Student lCurrentStudent : gStudents) {
-            if (lCurrentStudent.getStudentId().equalsIgnoreCase(id)) {
-                lCurrentStudent.setFirstName(updatedStudent.getFirstName());
-                lCurrentStudent.setLastName(updatedStudent.getLastName());
-                lCurrentStudent.setEmail(updatedStudent.getEmail());
-                lCurrentStudent.setStudentId(id);
-                return ResponseEntity.ok(lCurrentStudent);
-            }
-        }
-
-        return createNotFoundResponse(id);
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateStudent(@PathVariable Long id, @RequestBody Student student) {
+        Student lUpdatedStudent = gStudentService.updateStudent(id, student);
+        return ResponseEntity.ok(lUpdatedStudent);
     } // end updateStudent
 
     /**
      * Deletes a student by identifier.
-     * @param id String student identifier to delete.
-     * @return ResponseEntity<Object> containing a success message or a JSON not-found response.
+     * @param id Long student identifier to delete.
+     * @return ResponseEntity<?> containing a success message, or a 404 handled by GlobalExceptionHandler.
      */
-    @DeleteMapping("/students/{id}")
-    public ResponseEntity<Object> deleteStudent(@PathVariable String id) {
-        for (Student lStudent : gStudents) {
-            if (lStudent.getStudentId().equalsIgnoreCase(id)) {
-                gStudents.remove(lStudent);
-                Map<String, String> response = new LinkedHashMap<>();
-                response.put("message", "Student deleted successfully");
-                response.put("studentId", id);
-                return ResponseEntity.ok(response);
-            }
-        }
-
-        return createNotFoundResponse(id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteStudent(@PathVariable Long id) {
+        gStudentService.deleteStudent(id);
+        Map<String, String> lResponseBody = new LinkedHashMap<>();
+        lResponseBody.put("message", "Student deleted successfully");
+        lResponseBody.put("id", String.valueOf(id));
+        return ResponseEntity.ok(lResponseBody);
     } // end deleteStudent
-
-    /**
-     * Creates a consistent JSON response for a missing student.
-     * @param id String student identifier that was not found.
-     * @return ResponseEntity<Object> containing the HTTP 404 error details.
-     */
-    private ResponseEntity<Object> createNotFoundResponse(String id) {
-        Map<String, Object> lError = new LinkedHashMap<>();
-        lError.put("status", HttpStatus.NOT_FOUND.value());
-        lError.put("error", HttpStatus.NOT_FOUND.getReasonPhrase());
-        lError.put("message", "Student not found with id: " + id);
-        lError.put("path", "/api/students/" + id);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(lError);
-    } // end createNotFoundResponse
 } // end StudentController

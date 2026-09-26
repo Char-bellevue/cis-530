@@ -40,4 +40,12 @@ public interface EmployeeDAO {
      */
     void delete(Employee employee);
 
+    /**
+     * Looks up the employee with the given id and removes it from the
+     * database if found.
+     * @param id int, the primary key of the employee to delete.
+     * @return void, no value is returned; the record is removed from persistence.
+     */
+    void deleteById(int id);
+
 } // end EmployeeDAO

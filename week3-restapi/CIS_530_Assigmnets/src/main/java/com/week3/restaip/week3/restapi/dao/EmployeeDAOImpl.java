@@ -68,4 +68,18 @@ public class EmployeeDAOImpl implements EmployeeDAO {
         entityManager.remove(managedEmployee);
     } // end delete
 
+    /**
+     * Looks up the employee with the given id directly through the
+     * EntityManager and removes it from the database if it exists.
+     * @param id int, the primary key of the employee to delete.
+     * @return void, no value is returned; the record is removed from persistence.
+     */
+    @Override
+    public void deleteById(int id) {
+        Employee employee = entityManager.find(Employee.class, id); // look up the managed entity by id
+        if (employee != null) {
+            entityManager.remove(employee); // remove the managed entity from persistence
+        }
+    } // end deleteById
+
 } // end EmployeeDAOImpl

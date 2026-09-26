@@ -87,8 +87,8 @@ public class EmployeeServiceImpl implements EmployeeServiceInter {
     @Override
     @Transactional
     public void deleteById(int id) {
-        Employee employeeToDelete = findById(id); // throws if the employee does not exist
-        employeeDAO.delete(employeeToDelete);
+        findById(id); // throws a RuntimeException if the employee does not exist, kept for consistent error handling
+        employeeDAO.deleteById(id); // remove the record via EntityManager
     } // end deleteById
 
 } // end EmployeeServiceImpl

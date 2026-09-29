@@ -11,7 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/employee")
@@ -39,13 +41,26 @@ public class EmployeeController {
     } // end getAllEmployees
 
     /**
-     * Handles GET /employee/{id} and returns a single employee by id.
+     * Handles GET /employee/{id} and returns a single employee by id. A
+     * missing record is not treated as a server error (500) or a missing
+     * endpoint (404) - the request itself was still received, processed,
+     * and answered successfully - so this returns HTTP 200 with a null
+     * employee and an explanatory message instead.
      * @param id Integer, the primary key of the employee to retrieve, taken from the URL path.
-     * @return a ResponseEntity wrapping the matching Employee entity, HTTP 200.
+     * @return a ResponseEntity with HTTP 200, containing either the matching
+     * Employee entity, or a null employee plus a "not found" message.
      */
     @GetMapping("{id}")
-    public ResponseEntity<Employee> findEmployeeById(@PathVariable Integer id) { // GET /employee/{id}
-        return ResponseEntity.ok(employeeService.findById(id));
+    public ResponseEntity<?> findEmployeeById(@PathVariable Integer id) { // GET /employee/{id}
+        try {
+            Employee employee = employeeService.findById(id);
+            return ResponseEntity.ok(employee);
+        } catch (RuntimeException notFoundException) { // service throws when no matching record exists
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("employee", null);
+            body.put("message", "Employee not found with id: " + id);
+            return ResponseEntity.ok(body);
+        }
     } // end findEmployeeById
 
     /**

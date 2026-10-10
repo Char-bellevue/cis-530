@@ -12,6 +12,7 @@
 *.jar
 *.war
 /target/
+/cis530-week5/target/
 hs err pid*
 .project
 .classpath

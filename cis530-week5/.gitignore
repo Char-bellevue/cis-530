@@ -1,0 +1,14 @@
+## OS X
+.DS_Store
+
+## VS Code IDE
+.vscode/
+*.code-workspace
+
+## Build output
+target/
+
+## General files
+*.class
+*.log
+hs_err_pid*

@@ -84,6 +84,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 // Show the default Spring Security login page in the browser.
                 .formLogin(Customizer.withDefaults())
+                // Allow users to sign in with their Google or GitHub account.
+                .oauth2Login(Customizer.withDefaults())
                 // Allow Basic Auth so Postman can log in with a username and password.
                 .httpBasic(Customizer.withDefaults());
         return http.build();

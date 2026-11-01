@@ -5,10 +5,6 @@ package edu.bellevue.cis530.week8.controller;
 
 import java.util.List;
 
-import edu.bellevue.cis530.week8.entity.Student;
-import edu.bellevue.cis530.week8.entity.StudentProfile;
-import edu.bellevue.cis530.week8.service.StudentService;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,11 +16,23 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import edu.bellevue.cis530.week8.entity.Student;
+import edu.bellevue.cis530.week8.entity.StudentProfile;
+import edu.bellevue.cis530.week8.service.StudentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 /**
  * REST controller that exposes the student and profile endpoints under /api/students.
  */
+@Tag(name = "Student API", description = "Create, read, update, and delete students and their profiles.")
 @RestController
 @RequestMapping("/api/students")
 public class StudentController {
@@ -48,6 +56,15 @@ public class StudentController {
      * @param student Student the request body, validated with @Valid.
      * @return ResponseEntity&lt;Student&gt; a 201 Created response with the saved student.
      */
+    @Operation(summary = "Create a student",
+            description = "Creates a new student with a profile and saves both in the database. ADMIN role required.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Student created successfully",
+                    content = @Content(schema = @Schema(implementation = Student.class))),
+            @ApiResponse(responseCode = "400", description = "Validation failed", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Not logged in", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Logged in without the ADMIN role", content = @Content)
+    })
     @PostMapping
     public ResponseEntity<Student> createStudent(@Valid @RequestBody Student student) {
         Student lCreatedStudent = gStudentService.createStudent(student);
@@ -59,6 +76,13 @@ public class StudentController {
      *
      * @return ResponseEntity&lt;List&lt;Student&gt;&gt; a 200 OK response with every student.
      */
+    @Operation(summary = "Get all students",
+            description = "Returns every student with the profile attached. No input is needed.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of students returned",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Student.class)))),
+            @ApiResponse(responseCode = "401", description = "Not logged in", content = @Content)
+    })
     @GetMapping
     public ResponseEntity<List<Student>> getAllStudents() {
         return ResponseEntity.ok(gStudentService.getAllStudents());
@@ -70,8 +94,18 @@ public class StudentController {
      * @param id Long the id taken from the URL path.
      * @return ResponseEntity&lt;Student&gt; a 200 OK response with the student.
      */
+    @Operation(summary = "Get a student by id",
+            description = "Returns the student that matches the id in the URL path.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Student found",
+                    content = @Content(schema = @Schema(implementation = Student.class))),
+            @ApiResponse(responseCode = "401", description = "Not logged in", content = @Content),
+            @ApiResponse(responseCode = "404", description = "No student exists with that id", content = @Content)
+    })
     @GetMapping("/{id}")
-    public ResponseEntity<Student> getStudentById(@PathVariable("id") Long id) {
+    public ResponseEntity<Student> getStudentById(
+            @Parameter(description = "The id of the student to look up", example = "1")
+            @PathVariable("id") Long id) {
         return ResponseEntity.ok(gStudentService.getStudentById(id));
     } // end getStudentById
 
@@ -94,8 +128,18 @@ public class StudentController {
      * @param id Long the id taken from the URL path.
      * @return ResponseEntity&lt;Void&gt; a 204 No Content response with an empty body.
      */
+    @Operation(summary = "Delete a student",
+            description = "Deletes the student and the profile that belong to the id. ADMIN role required.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Student deleted, no content returned", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Not logged in", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Logged in without the ADMIN role", content = @Content),
+            @ApiResponse(responseCode = "404", description = "No student exists with that id", content = @Content)
+    })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteStudent(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> deleteStudent(
+            @Parameter(description = "The id of the student to delete", example = "1")
+            @PathVariable("id") Long id) {
         gStudentService.deleteStudent(id);
         return ResponseEntity.noContent().build();
     } // end deleteStudent
@@ -133,3 +177,4 @@ public class StudentController {
         return ResponseEntity.ok(gStudentService.getStudentsByEnrollmentYear(year));
     } // end getStudentsByEnrollmentYear
 } // end StudentController
+ 

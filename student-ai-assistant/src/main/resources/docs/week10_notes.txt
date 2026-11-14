@@ -1,0 +1,9 @@
+Spring AI helps Java developers build AI-powered applications in Spring Boot.
+A prompt tells the model what to do and how to respond.
+Good prompts are clearer, more specific, and easier for the model to follow.
+Output parsers help convert a model response into a structured format
+that an application can use more reliably.
+Stuffing the prompt means adding outside information directly into the
+prompt before asking the question.
+RAG is different because the application first retrieves related documents
+from a vector store and then sends that retrieved context to the model.

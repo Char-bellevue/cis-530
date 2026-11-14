@@ -1,0 +1,6 @@
+RAG stands for Retrieval Augmented Generation.
+In RAG, the application stores documents in a vector store. When a question
+arrives, the system retrieves the most relevant documents and adds them to
+the model context before the final answer is generated.
+RAG is different from basic prompting because the answer is grounded in
+retrieved documents instead of only the model's built-in knowledge.
